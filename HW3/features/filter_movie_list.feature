@@ -28,10 +28,19 @@ Scenario: restrict to movies with 'PG' or 'R' ratings
   # enter step(s) to ensure that PG and R movies are visible
   # enter step(s) to ensure that other movies are not visible
 When I check the following ratings: PG,R
-And I uncheck the following ratings: G,PG-13
-Then the "ratings_PG" checkbox within ratings_form should be checked
+And I uncheck the following ratings: G,PG-13,NC-17
+And I press "ratings_submit"
+#Then the "ratings_PG" checkbox within ratings_form should be checked
 #Then the "ratings_PG" checkbox should be checked
 #Then the "ratings[PG]" checkbox should be checked
+Then I should see " PG "
+And I should see " R "
+And I should not see "Chicken Run"
+And I should not see "Aladdin"
+And I should not see "The Help"
+And I should not see "Chocolat"
 
 Scenario: all ratings selected
-  # see assignment
+When I check the following ratings: G,PG,PG-13,R,NC-17
+And I press "ratings_submit"
+Then I should see all the movies
