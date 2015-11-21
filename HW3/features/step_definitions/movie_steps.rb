@@ -58,13 +58,13 @@ end
 
 # At this stage of development, this matcher only tells me the state
 # of a ratings checkbox
-When /^ratings "(.*)" are selected$/ do |choices|
+When /^rating(?:s|) "(.*)" (?:is|are) selected$/ do |choices|
   list = choices.split(/[,\s]+/)
   list.each do |choice|
     id = 'ratings_' + choice
     element = find_by_id(id)
     if element
-      puts id + (element.checked? ? ' is' : " isn't") + ' checked'
+      puts 'Rating ' + choice + (element.checked? ? ' is' : " isn't") + ' checked'
     end
   end
 end
