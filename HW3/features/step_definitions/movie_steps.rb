@@ -1,7 +1,6 @@
 # Add a declarative step here for populating the DB with movies.
 
 Given /the following movies exist/ do |movies_table|
-  @movie_count = movies_table.hashes.length
   movies_table.hashes.each do |movie|
     Movie.create(movie)
   end
@@ -28,23 +27,44 @@ When /I (un)?check the following ratings: (.*)/ do |state, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
+  result = []
   rating_list.split(',').each do |r|
     #name = 'ratings[' + r + ']'
     name = 'ratings_' + r 
     (state == 'un') ? uncheck(name) : check(name)
+    result << r
   end
+  puts 'result = ' + result.to_s
 end
 
 Then /I should see all the movies/ do
   # Make sure that all the movies in the app are visible in the table
-  n = 0
-  @movie_count.times do 
-    n = page.body.index('More about', n + 1)
-    fail "Not enough movies" if !n
-  end
-  fail "Too many movies" if page.body.index('More about', n + 1)
+  movie_count = Movie.all.length
+  #puts '<!-- ' + page.html + ' -->'
+  puts 'We have ' + movie_count.to_s + ' movies'
+  puts "page.all('table#movies tr').count = " + page.all('table#movies tr').count.to_s
+  fail "Incorrect movie count" if movie_count != (page.all('table#movies tr').count - 1)
 end
 
 Given /^(?:|I )am on (.+)$/ do |page_name|
   visit path_to(page_name)
+end
+
+=begin
+When /all ratings are checked/ do
+  When I check the following ratings: G,PG,PG-13,R,NC-17
+end
+=end
+
+# At this stage of development, this matcher only tells me the state
+# of a ratings checkbox
+When /^ratings "(.*)" are selected$/ do |choices|
+  list = choices.split(/[,\s]+/)
+  list.each do |choice|
+    id = 'ratings_' + choice
+    element = find_by_id(id)
+    if element
+      puts id + (element.checked? ? ' is' : " isn't") + ' checked'
+    end
+  end
 end
